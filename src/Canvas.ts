@@ -23,6 +23,8 @@ function getDevicePixelRatio() {
         1;
     return devicePixelRatio / backingStoreRatio;
   })();
+  canvas.width = 0;
+  canvas.height = 0;
   return _pixelRatio;
 }
 

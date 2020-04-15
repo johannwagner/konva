@@ -239,11 +239,35 @@ export abstract class Node<Config extends NodeConfig = NodeConfig> {
     return emptyChildren;
   }
 
+  _clearCanvas() {
+    const existingCanvas = this._cache.get(CANVAS)
+
+    if(!existingCanvas) {
+      return;
+    }
+
+    // This is due to a bug in iOS and mostly a temporary bug fix.
+    existingCanvas.scene._canvas.width = 1;
+    existingCanvas.scene._canvas.height = 1;
+    existingCanvas.hit._canvas.width = 1;
+    existingCanvas.hit._canvas.height = 1;
+    existingCanvas.filter._canvas.width = 1;
+    existingCanvas.filter._canvas.height = 1;
+
+    console.warn("Resizing existingCanvas to 1x1")
+
+    this._cache.delete(CANVAS)
+  }
+
   /** @lends Konva.Node.prototype */
   _clearCache(attr?: string) {
-    if (attr) {
+
+    if (attr === CANVAS) {
+      this._clearCanvas();
+    } else if (attr) {
       this._cache.delete(attr);
     } else {
+      this._clearCanvas();
       this._cache.clear();
     }
   }
@@ -292,7 +316,7 @@ export abstract class Node<Config extends NodeConfig = NodeConfig> {
    * node.clearCache();
    */
   clearCache() {
-    this._cache.delete(CANVAS);
+    this._clearCanvas();
     this._clearSelfAndDescendantCache();
     return this;
   }
@@ -406,7 +430,7 @@ export abstract class Node<Config extends NodeConfig = NodeConfig> {
 
     cachedHitCanvas.isCache = true;
 
-    this._cache.delete('canvas');
+    this._clearCanvas();
     this._filterUpToDate = false;
 
     if (conf.imageSmoothingEnabled === false) {

@@ -8,7 +8,7 @@
    * Konva JavaScript Framework v4.2.2
    * http://konvajs.org/
    * Licensed under the MIT
-   * Date: Mon Apr 13 2020
+   * Date: Wed Apr 15 2020
    *
    * Original work Copyright (C) 2011 - 2013 by Eric Rowell (KineticJS)
    * Modified work Copyright (C) 2014 - present by Anton Lavrenov (Konva)
@@ -2274,6 +2274,8 @@
               1;
           return devicePixelRatio / backingStoreRatio;
       })();
+      canvas.width = 0;
+      canvas.height = 0;
       return _pixelRatio;
   }
   /**
@@ -2657,12 +2659,31 @@
       Node.prototype.getChildren = function () {
           return emptyChildren;
       };
+      Node.prototype._clearCanvas = function () {
+          var existingCanvas = this._cache.get(CANVAS);
+          if (!existingCanvas) {
+              return;
+          }
+          // This is due to a bug in iOS and mostly a temporary bug fix.
+          existingCanvas.scene._canvas.width = 1;
+          existingCanvas.scene._canvas.height = 1;
+          existingCanvas.hit._canvas.width = 1;
+          existingCanvas.hit._canvas.height = 1;
+          existingCanvas.filter._canvas.width = 1;
+          existingCanvas.filter._canvas.height = 1;
+          console.warn("Resizing existingCanvas to 1x1");
+          this._cache.delete(CANVAS);
+      };
       /** @lends Konva.Node.prototype */
       Node.prototype._clearCache = function (attr) {
-          if (attr) {
+          if (attr === CANVAS) {
+              this._clearCanvas();
+          }
+          else if (attr) {
               this._cache.delete(attr);
           }
           else {
+              this._clearCanvas();
               this._cache.clear();
           }
       };
@@ -2708,7 +2729,7 @@
        * node.clearCache();
        */
       Node.prototype.clearCache = function () {
-          this._cache.delete(CANVAS);
+          this._clearCanvas();
           this._clearSelfAndDescendantCache();
           return this;
       };
@@ -2792,7 +2813,7 @@
               height: height
           }), sceneContext = cachedSceneCanvas.getContext(), hitContext = cachedHitCanvas.getContext();
           cachedHitCanvas.isCache = true;
-          this._cache.delete('canvas');
+          this._clearCanvas();
           this._filterUpToDate = false;
           if (conf.imageSmoothingEnabled === false) {
               cachedSceneCanvas.getContext()._context.imageSmoothingEnabled = false;
@@ -7083,12 +7104,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -7100,6 +7121,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -9942,12 +9964,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -9959,6 +9981,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -10131,12 +10154,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -10148,6 +10171,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -10425,12 +10449,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -10442,6 +10466,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -10642,12 +10667,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -10659,6 +10684,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -10779,12 +10805,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -10796,6 +10822,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -10953,12 +10980,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -10970,6 +10997,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -11532,12 +11560,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -11549,6 +11577,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -12349,12 +12378,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -12366,6 +12395,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -12501,12 +12531,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -12518,6 +12548,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -12659,12 +12690,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -12676,6 +12707,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -12812,12 +12844,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -12829,6 +12861,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -13179,12 +13212,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -13196,6 +13229,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -13406,12 +13440,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -13423,6 +13457,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -14067,12 +14102,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -14084,6 +14119,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
@@ -16126,12 +16162,12 @@
      * @param {Number} [config.hitStrokeWidth] size of the stroke on hit canvas.  The default is "auto" - equals to strokeWidth
      * @param {Boolean} [config.strokeHitEnabled] flag which enables or disables stroke hit region.  The default is true
      * @param {Boolean} [config.perfectDrawEnabled] flag which enables or disables using buffer canvas.  The default is true
-     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shasow for stroke.  The default is true
+     * @param {Boolean} [config.shadowForStrokeEnabled] flag which enables or disables shadow for stroke.  The default is true
      * @param {Boolean} [config.strokeScaleEnabled] flag which enables or disables stroke scale.  The default is true
      * @param {Boolean} [config.strokeEnabled] flag which enables or disables the stroke.  The default value is true
      * @param {String} [config.lineJoin] can be miter, round, or bevel.  The default
      *  is miter
-     * @param {String} [config.lineCap] can be butt, round, or sqare.  The default
+     * @param {String} [config.lineCap] can be butt, round, or square.  The default
      *  is butt
      * @param {String} [config.shadowColor]
      * @param {Number} [config.shadowBlur]
@@ -16143,6 +16179,7 @@
      * @param {Boolean} [config.shadowEnabled] flag which enables or disables the shadow.  The default value is true
      * @param {Array} [config.dash]
      * @param {Boolean} [config.dashEnabled] flag which enables or disables the dashArray.  The default value is true
+
    * @param {Number} [config.x]
      * @param {Number} [config.y]
      * @param {Number} [config.width]
