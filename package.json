@@ -1,6 +1,6 @@
 {
   "name": "@johannwagner/konva",
-  "version": "4.2.2-safari-fix",
+  "version": "6.0.0-safari-fix",
   "author": "Anton Lavrenov",
   "files": [
     "README.md",
